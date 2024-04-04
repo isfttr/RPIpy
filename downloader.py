@@ -1,9 +1,17 @@
 import requests
 
-# URL of the file to download
-url = 'https://revistas.inpi.gov.br/txt/P2778.zip'
 
-# Send a GET request to the URL
+
+# url_template of the file to download
+url_template = 'https://revistas.inpi.gov.br/txt/P{}.zip'
+
+# Prompt for RPI numb
+number = input('Escreva o número de RPI desejado: ')
+
+# Construct new URL using number 
+url = url_template.format(number)
+
+# Send a GET request to the url_template
 response = requests.get(url)
 
 # Check if the request was successful
@@ -13,7 +21,7 @@ if response.status_code == 200:
     if content_disposition:
         file_name = content_disposition.split('filename=')[1]
     else:
-        # If the Content-Disposition header is not present, use the URL as the file name
+        # If the Content-Disposition header is not present, use the url_template as the file name
         file_name = url.split('/')[-1]
 
     # Save the file to the current working directory
