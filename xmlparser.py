@@ -13,7 +13,7 @@ data_publicacao = root.get('dataPublicacao')
 #print(root.attrib)
 print("Total de:",len(root)," despachos")
 
-chave_pesquisa = 'Fundação Universidade de Brasília'
+chave_pesquisa = 'UNIVERSIDADE FEDERAL DE MINAS GERAIS'
 
 for nome_completo in root.iter('nome-completo'):
     # Check if the element has text and if it matches the search text
@@ -39,3 +39,20 @@ for nome_completo in root.iter('nome-completo'):
         data_deposito = processo_patente.find('data-deposito')
         if data_deposito is not None:
             print('Data de depósito:', data_deposito.text)
+
+        titulo_protecao = processo_patente.find('titulo')
+        if titulo_protecao is not None:
+            print('Título:', titulo_protecao.text)
+
+        titular_lista = nome_completo.getparent().getparent()
+        #sequencia_titular = titular_lista.find('titular')
+        #if sequencia_titular is not None:
+        #    print('# Titular:', sequencia_titular.attrib['sequencia'])
+        print('Número de titulares: ', len(titular_lista))
+
+        nome_titular = nome_completo.getparent()
+        titular = nome_titular.find('nome-completo')
+        if titular is not None:
+            print('Titular:', titular.text)
+            
+            print('---')
