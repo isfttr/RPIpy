@@ -3,8 +3,10 @@ import pandas as pd
 import uuid 
 from uuid import uuid4
 
+numero_rpi_str = input("Número de RPI: ")
+numero_rpi = int(numero_rpi_str)
 
-tree = ET.parse('P2777.xml')
+tree = ET.parse('P'+str(numero_rpi)+'.xml')
 
 def extract_data(despacho: any) -> list:
     data = []
@@ -59,6 +61,6 @@ for row in data:
 
 # Create DataFrame
 df = pd.DataFrame(flattened_data, columns=['despacho_id', 'codigo_despacho', 'titulo', 'numero_processo', 'data_deposito', 'comentario', 'sequencia_titular', 'nome_completo', 'uf', 'pais'])
-
+df.to_csv(str('P'+numero_rpi_str), sep=',', index=False, encoding='utf-8')
 print(df)
 #print(data)
