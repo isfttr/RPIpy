@@ -1,11 +1,14 @@
 import xml.etree.ElementTree as ET
 import pandas as pd
+import uuid 
+from uuid import uuid4
 
 tree = ET.parse('P2777.xml')
 
 def extract_data(despacho: any) -> list:
     data = []
 
+    despacho_id = str(uuid4())
     codigo_despacho = despacho.find('codigo').text
     titulo = despacho.find('titulo').text
     processo = despacho.find('processo-patente')
@@ -15,9 +18,9 @@ def extract_data(despacho: any) -> list:
     
     comentario = despacho.find('comentario').text if despacho.find('comentario') is not None else None
     if comentario is not None:
-        data.append([codigo_despacho, titulo, numero_processo, data_deposito, comentario])
+        data.append([despacho_id, codigo_despacho, titulo, numero_processo, data_deposito, comentario])
     else:
-        data.append([codigo_despacho, titulo, numero_processo, data_deposito, None])
+        data.append([despacho_id, codigo_despacho, titulo, numero_processo, data_deposito, None])
    
     for titular in titulares:
         nome_completo = titular.find('nome-completo').text
@@ -32,3 +35,5 @@ data = []
 root = tree.getroot()
 for despacho in root.findall('despacho'):
     data.extend(extract_data(despacho))
+
+print(data)
