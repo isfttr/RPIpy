@@ -3,6 +3,7 @@ import pandas as pd
 import uuid 
 from uuid import uuid4
 
+
 tree = ET.parse('P2777.xml')
 
 def extract_data(despacho: any) -> list:
@@ -23,11 +24,12 @@ def extract_data(despacho: any) -> list:
         data.append([despacho_id, codigo_despacho, titulo, numero_processo, data_deposito, None])
    
     for titular in titulares:
+        sequencia_titular = titular.attrib['sequencia']
         nome_completo = titular.find('nome-completo').text
         endereco = titular.find('endereco')
         uf = endereco.find('uf').text if endereco is not None and endereco.find('uf') is not None else None
         pais = endereco.find('pais/sigla').text if endereco is not None and endereco.find('pais/sigla') is not None else None
-        data[-1].extend([nome_completo, uf, pais])
+        data[-1].extend([[sequencia_titular, nome_completo, uf, pais]])
 
     return data
 
@@ -36,4 +38,27 @@ root = tree.getroot()
 for despacho in root.findall('despacho'):
     data.extend(extract_data(despacho))
 
-print(data)
+#df = pd.DataFrame(data, columns=['despacho_id','codigo_despacho', 'titulo', 'numero_processo', 'data_deposito', 'comentario', 'titular'])
+
+flattened_data = []
+for row in data:
+    despacho_id = row[0]
+    codigo_despacho = row[1]
+    titulo = row[2]
+    numero_processo = row[3]
+    data_deposito = row[4]
+    comentario = row[5]
+    
+    for titular_info in row[6:]:
+        sequencia_titular = titular_info[0]
+        nome_completo = titular_info[1]
+        uf = titular_info[2]
+        pais = titular_info[3]
+        
+        flattened_data.append([despacho_id, codigo_despacho, titulo, numero_processo, data_deposito, comentario, sequencia_titular, nome_completo, uf, pais])
+
+# Create DataFrame
+df = pd.DataFrame(flattened_data, columns=['despacho_id', 'codigo_despacho', 'titulo', 'numero_processo', 'data_deposito', 'comentario', 'sequencia_titular', 'nome_completo', 'uf', 'pais'])
+
+print(df)
+#print(data)
