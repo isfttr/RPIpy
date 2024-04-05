@@ -29,4 +29,11 @@ Lê os arquivos xml e busca pelas entradas para uma determinada chave de pesquis
 - [ ] Implementar os casos em que existem múltiplos titulares
 - [ ] Adicionar uma ferramenta para poder mudar a chave de busca e fazer sem precisar de ser uma resposta exata.
 
+### Database Connector
 
+Dependências
+
+```bash
+pip install mysql-connector-python
+
+```
