@@ -1,4 +1,6 @@
 import requests
+import zipfile
+
 
 # Prompt for RPI number
 number = input('Escreva o número de RPI desejado: ')
@@ -32,7 +34,14 @@ def download_file(url_template: str, number: str) -> None:
         print(f'Download não finalizado: {response.status_code}')
     return 
 
+def unziper(file_name: str) -> None:
+
+    # Open the ZIP file in read mode
+    with zipfile.ZipFile(file_name, 'r') as zf:
+        # Extract all the files to the current working directory
+        zf.extractall()
 
 if __name__ == '__main__':
 
     download_file(url_template,number)
+    unziper(file_name)
