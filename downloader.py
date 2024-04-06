@@ -1,33 +1,38 @@
 import requests
 
-
-
-# url_template of the file to download
-url_template = 'https://revistas.inpi.gov.br/txt/P{}.zip'
-
-# Prompt for RPI numb
+# Prompt for RPI number
 number = input('Escreva o número de RPI desejado: ')
+url_template = 'https://revistas.inpi.gov.br/txt/P{}.zip'
+file_name = str('P'+number+'.zip')
 
-# Construct new URL using number 
-url = url_template.format(number)
+def download_file(url_template: str, number: str) -> None:
 
-# Send a GET request to the url_template
-response = requests.get(url)
+    # Construct new URL using number 
+    url = url_template.format(number)
 
-# Check if the request was successful
-if response.status_code == 200:
-    # Get the file name from the Content-Disposition header
-    content_disposition = response.headers.get('Content-Disposition')
-    if content_disposition:
-        file_name = content_disposition.split('filename=')[1]
+    # Send a GET request to the url_template
+    response = requests.get(url)
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        # Get the file name from the Content-Disposition header
+        content_disposition = response.headers.get('Content-Disposition')
+        if content_disposition:
+            file_name = content_disposition.split('filename=')[1]
+        else:
+            # If the Content-Disposition header is not present, use the url_template as the file name
+            file_name = url.split('/')[-1]
+
+        # Save the file to the current working directory
+        with open(file_name, 'wb') as f:
+            f.write(response.content)
+
+        print(f'Arquivo {file_name} obtido com sucesso!')
     else:
-        # If the Content-Disposition header is not present, use the url_template as the file name
-        file_name = url.split('/')[-1]
+        print(f'Download não finalizado: {response.status_code}')
+    return 
 
-    # Save the file to the current working directory
-    with open(file_name, 'wb') as f:
-        f.write(response.content)
 
-    print(f'File {file_name} downloaded successfully!')
-else:
-    print(f'Failed to download file: {response.status_code}')
+if __name__ == '__main__':
+
+    download_file(url_template,number)
