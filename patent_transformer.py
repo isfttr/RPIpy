@@ -9,7 +9,7 @@ numero_rpi_str = input("Número de RPI: ")
 numero_rpi = int(numero_rpi_str)
 
 # Parsing do arquivo XML
-tree = ET.parse('P'+str(numero_rpi)+'.xml')
+tree = ET.parse('P'+str(numero_rpi)+'*.xml')
 
 # Função de extração de todos os despachos contidos no XML
 def extract_data(despacho: any) -> list:
@@ -68,9 +68,9 @@ def flatten_data(data: list) -> any:
     # Create DataFrame
     df = pd.DataFrame(flattened_data, columns=['despacho_id', 'codigo_despacho', 'titulo', 'numero_processo', 'data_deposito', 'comentario', 'sequencia_titular', 'nome_completo', 'uf', 'pais'])
     
-    # Save DataFrame to CSV
-    df.to_csv(str('P'+numero_rpi_str)+'.csv', sep=',', index=False, encoding='utf-8')
-    
+    # Save DataFrame to CSV and SQL
+    df.to_csv(str('P'+numero_rpi_str+'.csv'), sep=',', index=False, encoding='utf-8')
+
     return df
 
 if __name__ == '__main__':

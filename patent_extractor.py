@@ -3,14 +3,14 @@ import zipfile
 
 
 # Prompt for RPI number
-number = input('Escreva o número de RPI desejado: ')
+numero_rpi = input('Escreva o número de RPI desejado: ')
 url_template = 'https://revistas.inpi.gov.br/txt/P{}.zip'
-file_name = str('P'+number+'.zip')
+file_name = str('P'+numero_rpi+'.zip')
 
-def download_file(url_template: str, number: str) -> None:
+def get_rpi_patentes(url_template: str, numero_rpi: str) -> None:
 
-    # Construct new URL using number 
-    url = url_template.format(number)
+    # Construct new URL using numero_rpi 
+    url = url_template.format(numero_rpi)
 
     # Send a GET request to the url_template
     response = requests.get(url)
@@ -43,5 +43,5 @@ def unziper(file_name: str) -> None:
 
 if __name__ == '__main__':
 
-    download_file(url_template,number)
+    get_rpi_patentes(url_template,numero_rpi)
     unziper(file_name)
