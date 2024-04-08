@@ -2,17 +2,22 @@ import xml.etree.ElementTree as ET
 import pandas as pd
 import uuid 
 from uuid import uuid4
+import os
+
 
 
 # Prompt inicial
-numero_rpi_str = input("Número de RPI: ")
-numero_rpi = int(numero_rpi_str)
+numero_rpi_str:str = input("Número de RPI: ")
+numero_rpi:int = int(numero_rpi_str)
 
 # Parsing do arquivo XML
-tree = ET.parse('P'+str(numero_rpi)+'*.xml')
+xml_file:str = 'P' + numero_rpi_str + '.xml'
+print(xml_file)
+tree = ET.parse(xml_file)
 
 # Função de extração de todos os despachos contidos no XML
 def extract_data(despacho: any) -> list:
+    
     data = []
 
     despacho_id = str(uuid4())
@@ -40,9 +45,22 @@ def extract_data(despacho: any) -> list:
     return data
 
 data = []
-root = tree.getroot()
-for despacho in root.findall('despacho'):
-    data.extend(extract_data(despacho))
+root = None
+if tree is not None:
+    # Process the XML tree
+    root = tree.getroot()
+    # Continue with your code that uses the parsed XML tree
+else:
+    print("No XML file was parsed.")
+
+if root is not None:
+    # Process the XML tree
+    for despacho in root.findall('despacho'):
+        data.extend(extract_data(despacho))    # Continue with your code that uses the parsed XML tree
+else:
+    print("No XML file was parsed.")
+
+
 
 # Essa função organiza os dados para serem compatíveis com dataframe
 def flatten_data(data: list) -> any:
@@ -57,11 +75,11 @@ def flatten_data(data: list) -> any:
         data_deposito = row[4]
         comentario = row[5]
         
-    for titular_info in row[6:]:
-        sequencia_titular = titular_info[0]
-        nome_completo = titular_info[1]
-        uf = titular_info[2]
-        pais = titular_info[3]
+        for titular_info in row[6:]:
+            sequencia_titular = titular_info[0]
+            nome_completo = titular_info[1]
+            uf = titular_info[2]
+            pais = titular_info[3]
         
     flattened_data.append([despacho_id, codigo_despacho, titulo, numero_processo, data_deposito, comentario, sequencia_titular, nome_completo, uf, pais])
 
@@ -75,5 +93,5 @@ def flatten_data(data: list) -> any:
 
 if __name__ == '__main__':
 
-    extract_data()
-    flatten_data()
+    extract_data(despacho)
+    flatten_data(data)
