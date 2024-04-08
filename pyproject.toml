@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "rpipy"
+version = "0.3.3"
+description = "package for retrieving RPI data"
+authors = ["isfttr <lucas.fernandes.df@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
