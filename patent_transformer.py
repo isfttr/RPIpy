@@ -45,22 +45,12 @@ def extract_data(despacho: any) -> list:
     return data
 
 data = []
-root = None
-if tree is not None:
-    # Process the XML tree
-    root = tree.getroot()
-    # Continue with your code that uses the parsed XML tree
-else:
-    print("No XML file was parsed.")
 
-if root is not None:
-    # Process the XML tree
-    for despacho in root.findall('despacho'):
-        data.extend(extract_data(despacho))    # Continue with your code that uses the parsed XML tree
-else:
-    print("No XML file was parsed.")
+# Process the XML tree
+root = tree.getroot()
 
-
+for despacho in root.findall('despacho'):
+    data.extend(extract_data(despacho))    # Continue with your code that uses the parsed XML tree
 
 # Essa função organiza os dados para serem compatíveis com dataframe
 def flatten_data(data: list) -> any:
@@ -81,7 +71,7 @@ def flatten_data(data: list) -> any:
             uf = titular_info[2]
             pais = titular_info[3]
         
-    flattened_data.append([despacho_id, codigo_despacho, titulo, numero_processo, data_deposito, comentario, sequencia_titular, nome_completo, uf, pais])
+            flattened_data.append([despacho_id, codigo_despacho, titulo, numero_processo, data_deposito, comentario, sequencia_titular, nome_completo, uf, pais])
 
     # Create DataFrame
     df = pd.DataFrame(flattened_data, columns=['despacho_id', 'codigo_despacho', 'titulo', 'numero_processo', 'data_deposito', 'comentario', 'sequencia_titular', 'nome_completo', 'uf', 'pais'])
