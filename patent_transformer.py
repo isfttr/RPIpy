@@ -4,8 +4,6 @@ import uuid
 from uuid import uuid4
 import os
 
-
-
 # Prompt inicial
 numero_rpi_str:str = input("Número de RPI: ")
 numero_rpi:int = int(numero_rpi_str)
@@ -76,6 +74,8 @@ def flatten_data(data: list) -> any:
     # Create DataFrame
     df = pd.DataFrame(flattened_data, columns=['despacho_id', 'codigo_despacho', 'titulo', 'numero_processo', 'data_deposito', 'comentario', 'sequencia_titular', 'nome_completo', 'uf', 'pais'])
     
+    # Insert the RPI number in the first column
+    df.insert(0, 'numero_rpi', numero_rpi)
     # Save DataFrame to CSV and SQL
     df.to_csv(str('P'+numero_rpi_str+'.csv'), sep=',', index=False, encoding='utf-8')
 
