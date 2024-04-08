@@ -1,5 +1,6 @@
 import requests
 import zipfile
+import os
 
 
 # Prompt for RPI number
@@ -41,7 +42,29 @@ def unziper(file_name: str) -> None:
         # Extract all the files to the current working directory
         zf.extractall()
 
+def rename_xml(directory: any) -> None:
+    """
+    Renames XML files in the given directory to have a shorter name.
+    """
+    for filename in os.listdir(directory):
+        if filename.endswith(".xml"):
+            # Extract the number from the filename
+            num = filename[8:12]
+            # Construct the new filename
+            new_filename = f"P{num}.xml"
+            # Construct the full paths for the old and new filenames
+            old_path = os.path.join(directory, filename)
+            new_path = os.path.join(directory, new_filename)
+            # Rename the file
+            os.rename(old_path, new_path)
+
+# Example usage
+directory = os.getcwd()
+rename_xml(directory)
+
+
 if __name__ == '__main__':
 
     get_rpi_patentes(url_template,numero_rpi)
     unziper(file_name)
+    rename_xml(directory)
