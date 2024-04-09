@@ -2,7 +2,6 @@ import xml.etree.ElementTree as ET
 import pandas as pd
 import uuid 
 from uuid import uuid4
-import os
 
 # Prompt inicial
 numero_rpi_str:str = input("Número de RPI: ")
@@ -18,6 +17,7 @@ def extract_data(despacho: any) -> list:
     
     data = []
 
+    numero_rpi
     despacho_id = str(uuid4())
     codigo_despacho = despacho.find('codigo').text
     titulo = despacho.find('titulo').text
@@ -28,9 +28,9 @@ def extract_data(despacho: any) -> list:
     
     comentario = despacho.find('comentario').text if despacho.find('comentario') is not None else None
     if comentario is not None:
-        data.append([despacho_id, codigo_despacho, titulo, numero_processo, data_deposito, comentario])
+        data.append([numero_rpi, despacho_id, codigo_despacho, titulo, numero_processo, data_deposito, comentario])
     else:
-        data.append([despacho_id, codigo_despacho, titulo, numero_processo, data_deposito, None])
+        data.append([numero_rpi, despacho_id, codigo_despacho, titulo, numero_processo, data_deposito, None])
    
     for titular in titulares:
         sequencia_titular = titular.attrib['sequencia']
@@ -56,26 +56,27 @@ def flatten_data(data: list) -> any:
     flattened_data = []
     
     for row in data:
-        despacho_id = row[0]
-        codigo_despacho = row[1]
-        titulo = row[2]
-        numero_processo = row[3]
-        data_deposito = row[4]
-        comentario = row[5]
+        numero_rpi = row[0]
+        despacho_id = row[1]
+        codigo_despacho = row[2]
+        titulo = row[3]
+        numero_processo = row[4]
+        data_deposito = row[5]
+        comentario = row[6]
         
-        for titular_info in row[6:]:
+        for titular_info in row[7:]:
             sequencia_titular = titular_info[0]
             nome_completo = titular_info[1]
             uf = titular_info[2]
             pais = titular_info[3]
         
-            flattened_data.append([despacho_id, codigo_despacho, titulo, numero_processo, data_deposito, comentario, sequencia_titular, nome_completo, uf, pais])
+            flattened_data.append([numero_rpi, despacho_id, codigo_despacho, titulo, numero_processo, data_deposito, comentario, sequencia_titular, nome_completo, uf, pais])
 
     # Create DataFrame
-    df = pd.DataFrame(flattened_data, columns=['despacho_id', 'codigo_despacho', 'titulo', 'numero_processo', 'data_deposito', 'comentario', 'sequencia_titular', 'nome_completo', 'uf', 'pais'])
+    df = pd.DataFrame(flattened_data, columns=['numero_rpi', 'despacho_id', 'codigo_despacho', 'titulo', 'numero_processo', 'data_deposito', 'comentario', 'sequencia_titular', 'nome_completo', 'uf', 'pais'])
     
     # Insert the RPI number in the first column
-    df.insert(0, 'numero_rpi', numero_rpi)
+    #df.insert(0, 'numero_rpi', numero_rpi)
     # Save DataFrame to CSV and SQL
     df.to_csv(str('P'+numero_rpi_str+'.csv'), sep=',', index=False, encoding='utf-8')
 
