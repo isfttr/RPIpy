@@ -9,7 +9,6 @@ url_template = 'https://revistas.inpi.gov.br/txt/P{}.zip'
 file_name = str('P'+numero_rpi+'.zip')
 
 def get_rpi_patentes(url_template: str, numero_rpi: str) -> None:
-
     # Construct new URL using numero_rpi 
     url = url_template.format(numero_rpi)
 
@@ -35,8 +34,7 @@ def get_rpi_patentes(url_template: str, numero_rpi: str) -> None:
         print(f'Download não finalizado: {response.status_code}')
     return 
 
-def unziper(file_name: str) -> None:
-
+def unzip(file_name: str) -> None:
     # Open the ZIP file in read mode
     with zipfile.ZipFile(file_name, 'r') as zf:
         # Extract all the files to the current working directory
@@ -64,7 +62,6 @@ rename_xml(directory)
 
 
 if __name__ == '__main__':
-
     get_rpi_patentes(url_template,numero_rpi)
-    unziper(file_name)
+    unzip(file_name)
     rename_xml(directory)

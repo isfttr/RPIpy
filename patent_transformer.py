@@ -14,7 +14,6 @@ tree = ET.parse(xml_file)
 
 # Função de extração de todos os despachos contidos no XML
 def extract_data(despacho: any) -> list:
-    
     data = []
 
     numero_rpi
@@ -52,9 +51,8 @@ for despacho in root.findall('despacho'):
 
 # Essa função organiza os dados para serem compatíveis com dataframe
 def flatten_data(data: list) -> any:
-
     flattened_data = []
-    
+
     for row in data:
         numero_rpi = row[0]
         despacho_id = row[1]
@@ -83,6 +81,5 @@ def flatten_data(data: list) -> any:
     return df
 
 if __name__ == '__main__':
-
     extract_data(despacho)
     flatten_data(data)

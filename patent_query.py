@@ -22,6 +22,5 @@ def patent_query(df: any):
     return 
 
 if __name__ == '__main__':
-
     patent_query(df)
     
