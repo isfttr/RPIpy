@@ -25,7 +25,7 @@ def mover():
 
 if __name__ == '__main__':
     
-    file_extensions = ['.zip', '.txt']
+    file_extensions = ['.zip', '.txt', '*.xml', '*csv']
     for ext in file_extensions:
         swiper(ext)
     mover()
