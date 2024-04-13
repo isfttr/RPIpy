@@ -64,10 +64,9 @@ def rename_xml(directory: any) -> None:
             # Rename the file
             os.rename(old_path, new_path)
 
-# Example usage
+# # Example usage
 directory = os.getcwd()
-rename_xml(directory)
-
+# rename_xml(directory)
 
 if __name__ == '__main__':
     get_rpi_patentes(url_template,numero_rpi_start,numero_rpi_end)
