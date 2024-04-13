@@ -3,9 +3,6 @@ import zipfile
 import os
 
 
-# Prompt for RPI number
-numero_rpi_start = int(input('Escreva o número de RPI inicial: '))
-numero_rpi_end = int(input('Escreva o número de RPI final: '))
 
 # numero_rpi = input('Escreva o número de RPI desejado: ')
 url_template = 'https://revistas.inpi.gov.br/txt/P{}.zip'
@@ -66,10 +63,13 @@ def rename_xml(directory: any) -> None:
 
 # Example usage
 directory = os.getcwd()
-rename_xml(directory)
-
 
 if __name__ == '__main__':
-    get_rpi_patentes(url_template,numero_rpi_start,numero_rpi_end)
+    # Prompt for RPI number
+    numero_rpi_start = int(input('Escreva o número de RPI inicial: '))
+    numero_rpi_end = int(input('Escreva o número de RPI final: '))
+
+
+    get_rpi_patentes(url_template, numero_rpi_start, numero_rpi_end)
     # unzip(file_name)
     rename_xml(directory)
