@@ -5,9 +5,60 @@ import os
 import uuid
 from uuid import uuid4
 
+def check_xml_exists(missing_rpi_csv: list) -> list:
+    missing_rpi = []
 
-def extract_data(despacho: any, numero_rpi: int) -> list:
-    data = []
+    for numero_rpi in missing_rpi_csv:  
+        xml_file_name = 'P{}.xml'.format(numero_rpi)
+
+        if not os.path.exists(xml_file_name):
+            print(f'CheckXML: {xml_file_name} não existe...')
+            missing_rpi.append(numero_rpi)
+
+    if missing_rpi:
+        print(f'CheckXML: Não foram encontrados os arquivos referentes as RPIs: {", ".join(map(str, missing_rpi))}...')
+    else:
+        print(f'CheckXML: Todos arquivos encontrados!')
+    
+    return missing_rpi or None
+
+def check_csv_exists(numero_rpi_start: int, numero_rpi_end: int) -> list:
+    missing_rpi_csv = []
+
+    for numero_rpi in range(numero_rpi_start, numero_rpi_end+1):  
+        xml_file_name = 'P{}.csv'.format(numero_rpi)
+
+        if not os.path.exists(xml_file_name):
+            print(f'CheckCSV: {xml_file_name} não existe...')
+            missing_rpi_csv.append(numero_rpi)
+
+    if missing_rpi_csv:
+        print(f'CheckCSV: Não foram encontrados os arquivos referentes as RPIs: {", ".join(map(str, missing_rpi_csv))}...')
+    else:
+        print(f'CheckCSV: Todos arquivos encontrados!')
+    
+    return missing_rpi_csv or None
+
+def find_xml_in_missing_rpi_csv(missing_rpi_csv: list) -> list:
+    found_xml_files = []
+    
+    for numero_rpi in missing_rpi_csv:
+        xml_file_name:str = 'P{}.xml'.format(numero_rpi)
+        if os.path.exists(xml_file_name):
+            print(f'FindXML: {xml_file_name} encontrado...')
+            found_xml_files.append(numero_rpi)
+    
+    if found_xml_files:
+        print(f'FindXML: Encontrado arquivos referentes as RPIs: {", ".join(map(str, found_xml_files))}...')
+    else:
+        check_xml_exists(missing_rpi_csv)
+    
+    return found_xml_files or None
+
+
+def extract_metadata(numero_rpi:int, despacho: any) -> list:
+
+    metadata = []
 
     numero_rpi
     despacho_id = str(uuid4())
@@ -20,9 +71,9 @@ def extract_data(despacho: any, numero_rpi: int) -> list:
     comentario = despacho.find('comentario').text if despacho.find('comentario') is not None else None
 
     if comentario is not None:
-        data.append([numero_rpi, despacho_id, codigo_despacho, titulo, numero_processo, data_deposito, comentario, None, None, None, None])
+        metadata.append([numero_rpi, despacho_id, codigo_despacho, titulo, numero_processo, data_deposito, comentario, None, None, None, None])
     else:
-        data.append([numero_rpi, despacho_id, codigo_despacho, titulo, numero_processo, data_deposito, None, None, None, None, None])
+        metadata.append([numero_rpi, despacho_id, codigo_despacho, titulo, numero_processo, data_deposito, None, None, None, None, None])
 
     for titular in titulares:
         sequencia_titular = titular.attrib['sequencia']
@@ -31,36 +82,49 @@ def extract_data(despacho: any, numero_rpi: int) -> list:
         uf = endereco.find('uf').text if endereco is not None and endereco.find('uf') is not None else None
         pais = endereco.find('pais/sigla').text if endereco is not None and endereco.find('pais/sigla') is not None else None
 
-        data.append([numero_rpi, despacho_id, codigo_despacho, titulo, numero_processo, data_deposito, None, sequencia_titular, nome_completo, uf, pais])
+        metadata.append([numero_rpi, despacho_id, codigo_despacho, titulo, numero_processo, data_deposito, None, sequencia_titular, nome_completo, uf, pais])
 
-    return data
+    return metadata
 
-xml_files = glob.glob("*.xml")
 
-for i, xml_file in enumerate(xml_files):
-    filename = os.path.splitext(os.path.basename(xml_file))[0]
-    numero_rpi_str = ''.join(filter(str.isdigit, filename))
-    
-    if numero_rpi_str: 
-        numero_rpi = int(numero_rpi_str)
-        print(f"Processando {xml_file}... para RPI {numero_rpi} Patentes!")
-        tree = ET.parse(xml_file)
-        root = tree.getroot()
-
-        data = []
+def build_dataframe(found_xml_files: list) -> None:
+    for numero_rpi in found_xml_files:
+        csv_file_name:str = 'P{}.csv'.format(numero_rpi)
+        print(f'BuildDataFrame: Construindo {csv_file_name}... para RPI {numero_rpi} Patentes!')
+        
+        metadata = []
         
         for despacho in root.findall('despacho'):
-            data.extend(extract_data(despacho, numero_rpi))
+            metadata.extend(extract_metadata(numero_rpi, despacho))
 
-        df = pd.DataFrame(data, columns=['numero_rpi', 'despacho_id', 'codigo_despacho', 'titulo', 'numero_processo', 'data_deposito', 'comentario', 'sequencia_titular', 'nome_completo', 'uf', 'pais'])
-        
+        df = pd.DataFrame(metadata, columns=['numero_rpi', 'despacho_id', 'codigo_despacho', 'titulo', 'numero_processo', 'data_deposito', 'comentario', 'sequencia_titular', 'nome_completo', 'uf', 'pais'])
         
         query = df['despacho_id'].nunique()
         print(f'Processamento finalizado...')
-        print(f'Total de {query} despachos na RPI {numero_rpi} Patentes!')
+        print(f'Total de {query} despachos na RPI {numero_rpi} - Patentes!')
         print(f'--------------')
-        df.to_csv(f'P{numero_rpi}.csv')
+        csv_file = df.to_csv(f'P{numero_rpi}.csv')
+    return csv_file
+
 
 if __name__ == '__main__':
-    extract_data(despacho,numero_rpi)
-    print(f'--------------')
+    
+    numero_rpi_start = int(input('PatentTransformer: Escreva o número de RPI inicial: '))
+    numero_rpi_end = int(input('PatentTransformer: Escreva o número de RPI final: '))
+    
+    missing_rpi_csv = check_csv_exists(numero_rpi_start, numero_rpi_end)
+    found_xml_files = find_xml_in_missing_rpi_csv(missing_rpi_csv)
+
+    if found_xml_files is not None:
+        for numero_rpi in found_xml_files:
+            xml_file_name = 'P{}.xml'.format(numero_rpi)
+            tree = ET.parse(xml_file_name)
+            root = tree.getroot()
+            despacho = root.find('despacho')
+
+            extract_metadata(numero_rpi, despacho)
+            build_dataframe(found_xml_files)
+    else:
+        find_xml_in_missing_rpi_csv
+
+            
