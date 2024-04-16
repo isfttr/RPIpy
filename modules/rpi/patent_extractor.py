@@ -5,7 +5,7 @@ import re
 
 url_template = 'https://revistas.inpi.gov.br/txt/P{}.zip'
 
-def check_xml_exists(numero_rpi_start, numero_rpi_end) -> list:
+def check_xml_exists(numero_rpi_start: int, numero_rpi_end: int) -> list:
     missing_rpi = []
 
     for numero_rpi in range(numero_rpi_start, numero_rpi_end+1):  
