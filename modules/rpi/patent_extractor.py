@@ -16,7 +16,7 @@ def get_rpi_patentes(url_template: str, numero_rpi_start: int, numero_rpi_end: i
         url = url_template.format(numero_rpi)
         # Send a GET request to the url_template
         if os.path.exists(file_name):
-            print(f'{file_name} já disponível. Indo para o próximo.')
+            print(f'Get: {file_name} já disponível. Indo para o próximo.')
         else:
             response = requests.get(url)
 
@@ -34,24 +34,33 @@ def get_rpi_patentes(url_template: str, numero_rpi_start: int, numero_rpi_end: i
                 with open(file_name, 'wb') as f:
                     f.write(response.content)
 
-                print(f'Arquivo {file_name} obtido com sucesso!')
+                print(f'Get: Arquivo {file_name} obtido com sucesso!')
 
             else:
-                print(f'Download não finalizado: {response.status_code}')
+                print(f'Get: Download não finalizado: {response.status_code}')
 
-def unzip() -> None:
-    for numero_rpi in range(numero_rpi_start, numero_rpi_end+1):
-        file_name:str = 'P{}.zip'.format(numero_rpi)
+def unzip() -> bool:
+    xml_found = False
+        
+    for numero_rpi in range(numero_rpi_start, numero_rpi_end+1):  
         xml_file_name = 'P{}.xml'.format(numero_rpi)
+
         if os.path.exists(xml_file_name):
-            print(f'{xml_file_name} já disponível. Indo para o próximo.')
+            xml_found = True
+            print(f'Unzip: {xml_file_name} já disponível, sem necessidade de descompactar. Indo para o próximo.')
+
         else:
+            file_name:str = 'P{}.zip'.format(numero_rpi)
+                    
             try:
                 with zipfile.ZipFile(file_name, 'r') as zf:
                     zf.extractall()
-                    print(f'Arquivo {file_name} descompactado com sucesso!')
+                    print(f'Unzip: Arquivo {file_name} descompactado com sucesso!')
+                    xml_found = True
+
             except zipfile.BadZipFile:
-                print(f'Erro: O arquivo {file_name} não é um arquivo ZIP válido.')
+                print(f'Unzip Error: O arquivo {file_name} não é um arquivo ZIP válido.')
+    return xml_found
 
 def rename_xml(numero_rpi_start: int, numero_rpi_end: int) -> None:
    
@@ -60,7 +69,7 @@ def rename_xml(numero_rpi_start: int, numero_rpi_end: int) -> None:
         xml_file_name = 'P{}.xml'.format(numero_rpi)
    
         if os.path.exists(xml_file_name):
-            print(f'{xml_file_name} já disponível. Indo para o próximo.')
+            print(f'RenameXML: {xml_file_name} já disponível. Indo para o próximo.')
         else:
             for file_name in os.listdir('.'):  # Iterate through files in the current directory
                 if re.match(pattern, file_name):  # Check if the file_name matches the pattern
@@ -68,7 +77,7 @@ def rename_xml(numero_rpi_start: int, numero_rpi_end: int) -> None:
                     if match.group(2) == str(numero_rpi):  # Check if the extracted numero_rpi matches the input numero_rpi
                         new_file_name = f'P{numero_rpi}.xml'  # Define the new file_name
                         os.rename(file_name, new_file_name)  # Rename the file
-                        print(f'Arquivo {file_name} renomeado para {new_file_name}.')
+                        print(f'RenameXML: Arquivo {file_name} renomeado para {new_file_name}.')
 
 if __name__ == '__main__':
     # Prompt for RPI number
@@ -77,4 +86,5 @@ if __name__ == '__main__':
 
     get_rpi_patentes(url_template, numero_rpi_start, numero_rpi_end)
     unzip()
-    rename_xml(numero_rpi_start, numero_rpi_end)
+    if unzip():
+        rename_xml(numero_rpi_start, numero_rpi_end)
