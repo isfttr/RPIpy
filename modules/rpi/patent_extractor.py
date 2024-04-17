@@ -81,9 +81,9 @@ if __name__ == '__main__':
     numero_rpi_end = int(input('PatentExtractor: Escreva o número de RPI final: '))
 
     missing_rpi = check_xml_exists(numero_rpi_start, numero_rpi_end)
-    if missing_rpi is not None:
+    if missing_rpi is None:
+        missing_rpi
+    else:
         get_rpi_patentes(url_template, missing_rpi)
         unzip(missing_rpi)
         rename_xml(missing_rpi)
-    else:
-        missing_rpi
