@@ -284,6 +284,16 @@ files = [
 ]
 
 [[package]]
+name = "clear-cache"
+version = "1.0.0"
+description = "Remove __pycache__ folder"
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "clear_cache-1.0.0.tar.gz", hash = "sha256:7a05a21c2f385fbd14c197e7ffd95b25e66c8130f3707cd6cf6f83c7680c58da"},
+]
+
+[[package]]
 name = "dataclasses-json"
 version = "0.6.4"
 description = "Easily serialize dataclasses to and from JSON."
@@ -1512,4 +1522,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "776461f6a9701b0303699deda598ba1870b6e1b0e7f7c973f63d875c063354a2"
+content-hash = "7b29484cb1f688980d5224b64ae5142599f6d5768de7fcf86ad013286ba5b01b"
