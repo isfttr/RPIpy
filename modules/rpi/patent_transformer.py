@@ -1,66 +1,54 @@
 import xml.etree.ElementTree as ET
 import pandas as pd
-import glob
 import os
-import uuid
 from uuid import uuid4
+# import sys
+# sys.path.append('utils/')
+# from utils.cleaner import swipe_csv
 
+def check_csv_exists(numero_rpi_start: int, numero_rpi_end: int) -> list:
+    missing_rpi_csv = []
 
-def extract_data(despacho: any, numero_rpi: int) -> list:
-    data = []
+    for numero_rpi in range(numero_rpi_start, numero_rpi_end+1):  
+        csv_file_name = 'P{}.csv'.format(numero_rpi)
 
-    numero_rpi
-    despacho_id = str(uuid4())
-    codigo_despacho = despacho.find('codigo').text
-    titulo = despacho.find('titulo').text
-    processo = despacho.find('processo-patente')
-    numero_processo = processo.find('numero').text if processo is not None and processo.find('numero') is not None else None
-    data_deposito = processo.find('data-deposito').text if processo is not None and processo.find('data-deposito') is not None else None
-    titulares = processo.findall('.//titular') if processo is not None else []
-    comentario = despacho.find('comentario').text if despacho.find('comentario') is not None else None
+        if not os.path.exists(csv_file_name):
+            print(f'CheckCSV: {csv_file_name} não existe...')
+            missing_rpi_csv.append(numero_rpi)
 
-    if comentario is not None:
-        data.append([numero_rpi, despacho_id, codigo_despacho, titulo, numero_processo, data_deposito, comentario, None, None, None, None])
+    if missing_rpi_csv:
+        print(f'CheckCSV: Não foram encontrados os arquivos referentes as RPIs: {", ".join(map(str, missing_rpi_csv))}...')
     else:
-        data.append([numero_rpi, despacho_id, codigo_despacho, titulo, numero_processo, data_deposito, None, None, None, None, None])
-
-    for titular in titulares:
-        sequencia_titular = titular.attrib['sequencia']
-        nome_completo = titular.find('nome-completo').text
-        endereco = titular.find('endereco')
-        uf = endereco.find('uf').text if endereco is not None and endereco.find('uf') is not None else None
-        pais = endereco.find('pais/sigla').text if endereco is not None and endereco.find('pais/sigla') is not None else None
-
-        data.append([numero_rpi, despacho_id, codigo_despacho, titulo, numero_processo, data_deposito, None, sequencia_titular, nome_completo, uf, pais])
-
-    return data
-
-xml_files = glob.glob("*.xml")
-
-for i, xml_file in enumerate(xml_files):
-    filename = os.path.splitext(os.path.basename(xml_file))[0]
-    numero_rpi_str = ''.join(filter(str.isdigit, filename))
+        print(f'CheckCSV: Todos arquivos encontrados!')
     
-    if numero_rpi_str: 
-        numero_rpi = int(numero_rpi_str)
-        print(f"Processando {xml_file}... para RPI {numero_rpi} Patentes!")
-        tree = ET.parse(xml_file)
-        root = tree.getroot()
+    return missing_rpi_csv or None
 
-        data = []
-        
-        for despacho in root.findall('despacho'):
-            data.extend(extract_data(despacho, numero_rpi))
 
-        df = pd.DataFrame(data, columns=['numero_rpi', 'despacho_id', 'codigo_despacho', 'titulo', 'numero_processo', 'data_deposito', 'comentario', 'sequencia_titular', 'nome_completo', 'uf', 'pais'])
-        
-        
-        query = df['despacho_id'].nunique()
-        print(f'Processamento finalizado...')
-        print(f'Total de {query} despachos na RPI {numero_rpi} Patentes!')
-        print(f'--------------')
-        df.to_csv(f'P{numero_rpi}.csv')
+def parse_element(element, item):
+    if len(list(element)) == 0:
+        item[element.tag] = element.text
+    else:
+        for child in list(element):
+            parse_element(child, item)
+
 
 if __name__ == '__main__':
-    extract_data(despacho,numero_rpi)
-    print(f'--------------')
+    
+    numero_rpi_start = int(input('PatentTransformer: Escreva o número de RPI inicial: '))
+    numero_rpi_end = int(input('PatentTransformer: Escreva o número de RPI final: '))
+    missing_rpi_csv = check_csv_exists(numero_rpi_start, numero_rpi_end)
+
+    for numero_rpi in missing_rpi_csv:
+        print(f'PatentTransformer: Processando {numero_rpi}.xml...')
+        tree = ET.parse(f'P{numero_rpi}.xml')
+        root = tree.getroot()
+        data = []
+        for child in root:
+            item = {}
+            parse_element(child, item)
+            data.append(item)
+            df = pd.DataFrame(data)
+            df.to_csv(f'P{numero_rpi}.csv')
+        print(f'PatentTransformer: Planilha {numero_rpi}.csv criada!')
+
+        
