@@ -1,9 +1,11 @@
 import xml.etree.ElementTree as ET
 import pandas as pd
-import glob
 import os
-import uuid
 from uuid import uuid4
+# import sys
+# sys.path.append('utils/')
+# from utils.cleaner import swipe_csv
+
 
 def check_xml_exists(missing_rpi_csv: list) -> list:
     missing_rpi = []
@@ -56,7 +58,7 @@ def find_xml_in_missing_rpi_csv(missing_rpi_csv: list) -> list:
     return found_xml_files or None
 
 
-def extract_metadata(numero_rpi:int, despacho: any) -> list:
+def extract_metadata(numero_rpi:int, despacho) -> list:
 
     metadata = []
 
@@ -83,16 +85,18 @@ def extract_metadata(numero_rpi:int, despacho: any) -> list:
         pais = endereco.find('pais/sigla').text if endereco is not None and endereco.find('pais/sigla') is not None else None
 
         metadata.append([numero_rpi, despacho_id, codigo_despacho, titulo, numero_processo, data_deposito, None, sequencia_titular, nome_completo, uf, pais])
-
+    
     return metadata
 
 
-def build_dataframe(found_xml_files: list) -> None:
+def build_dataframe(metadata:list) -> None:
+    # metadata = []
+
     for numero_rpi in found_xml_files:
+        print(f'BuildDataFrame: Fila de {len(found_xml_files)} arquivos')
+        print(f'BuildDataFrame: Backlog {found_xml_files}...')
         csv_file_name:str = 'P{}.csv'.format(numero_rpi)
-        print(f'BuildDataFrame: Construindo {csv_file_name}... para RPI {numero_rpi} Patentes!')
-        
-        metadata = []
+        print(f'BuildDataFrame: Construindo {csv_file_name}...')
         
         for despacho in root.findall('despacho'):
             metadata.extend(extract_metadata(numero_rpi, despacho))
@@ -100,8 +104,8 @@ def build_dataframe(found_xml_files: list) -> None:
         df = pd.DataFrame(metadata, columns=['numero_rpi', 'despacho_id', 'codigo_despacho', 'titulo', 'numero_processo', 'data_deposito', 'comentario', 'sequencia_titular', 'nome_completo', 'uf', 'pais'])
         
         query = df['despacho_id'].nunique()
-        print(f'Processamento finalizado...')
-        print(f'Total de {query} despachos na RPI {numero_rpi} - Patentes!')
+        print(f'BuildDataFrame: Processamento finalizado!')
+        print(f'BuildDataFrame: Total de {query} despachos na RPI {numero_rpi}!')
         print(f'--------------')
         csv_file = df.to_csv(f'P{numero_rpi}.csv')
     return csv_file
@@ -112,19 +116,25 @@ if __name__ == '__main__':
     numero_rpi_start = int(input('PatentTransformer: Escreva o número de RPI inicial: '))
     numero_rpi_end = int(input('PatentTransformer: Escreva o número de RPI final: '))
     
+    # swipe_csv(numero_rpi_start, numero_rpi_end)
+
     missing_rpi_csv = check_csv_exists(numero_rpi_start, numero_rpi_end)
     found_xml_files = find_xml_in_missing_rpi_csv(missing_rpi_csv)
 
-    if found_xml_files is not None:
-        for numero_rpi in found_xml_files:
+    build_list = found_xml_files
+
+    if build_list:
+        for numero_rpi in build_list:
+            print(f'BuildList: {build_list}...')
             xml_file_name = 'P{}.xml'.format(numero_rpi)
             tree = ET.parse(xml_file_name)
             root = tree.getroot()
+            
             despacho = root.find('despacho')
 
-            extract_metadata(numero_rpi, despacho)
-            build_dataframe(found_xml_files)
+            metadata = extract_metadata(numero_rpi, despacho)
+            build_dataframe(metadata)
+            build_list.remove(numero_rpi)
     else:
         find_xml_in_missing_rpi_csv
-
-            
+        
