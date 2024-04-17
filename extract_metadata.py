@@ -12,7 +12,7 @@ def extract_metadata_from_file(numero_rpi) -> None:
     # print(f'Metadata list populated for {numero_rpi}.')
     for despacho in root.findall('despacho'):
         # Extract metadata from despacho
-        metadata.append(despacho)
+        # metadata.append(despacho)
 
         numero_rpi
         despacho_id = str(uuid4())
@@ -58,4 +58,4 @@ if __name__ == '__main__':
     for numero_rpi in range(numero_rpi_start, numero_rpi_end+1):
         metadata = extract_metadata_from_file(numero_rpi)
         print(metadata)
-        # build_dataframe(metadata)
+        build_dataframe(metadata)
