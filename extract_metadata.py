@@ -9,13 +9,11 @@ def extract_metadata_from_file(numero_rpi) -> None:
     tree = ET.parse(f'P{numero_rpi}.xml')
     root = tree.getroot()
 
+    # print(f'Metadata list populated for {numero_rpi}.')
     for despacho in root.findall('despacho'):
         # Extract metadata from despacho
         metadata.append(despacho)
-    
-    if metadata:
-        # print(f'Metadata list populated for {numero_rpi}.')
-        
+
         numero_rpi
         despacho_id = str(uuid4())
         codigo_despacho = despacho.find('codigo').text
@@ -23,9 +21,7 @@ def extract_metadata_from_file(numero_rpi) -> None:
         processo = despacho.find('processo-patente')
         numero_processo = processo.find('numero').text if processo is not None and processo.find('numero') is not None else None
         
-        metadata.append([numero_rpi, despacho_id, codigo_despacho, titulo, numero_processo])
-    else: 
-        print(f'Error: No Metadata list for {numero_rpi}.')
+        metadata.extend([numero_rpi, despacho_id, codigo_despacho, titulo, numero_processo])
 
     return metadata
 
@@ -40,9 +36,9 @@ def write_metadata(metadata) -> None:
         print(f'Error: No Metadata list for {numero_rpi}.')
 
 def build_dataframe(metadata) -> None:
-    
+
     if metadata:
-        df = pd.DataFrame(metadata, columns=[['numero_rpi', 'despacho_id', 'codigo_despacho', 'titulo', 'numero_processo']])
+        df = pd.DataFrame(metadata, columns=['numero_rpi', 'despacho_id', 'codigo_despacho', 'titulo', 'numero_processo'])
         query = df['despacho_id'].nunique()
         print(f'BuildDataFrame: Total de {query} despachos na RPI {numero_rpi}!')
         csv_file = df.to_csv(f'P{numero_rpi}.csv')
@@ -61,4 +57,5 @@ if __name__ == '__main__':
     
     for numero_rpi in range(numero_rpi_start, numero_rpi_end+1):
         metadata = extract_metadata_from_file(numero_rpi)
-        build_dataframe(metadata)
+        print(metadata)
+        # build_dataframe(metadata)
