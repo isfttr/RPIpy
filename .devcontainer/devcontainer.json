@@ -4,7 +4,11 @@
 		"dockerfile": "Dockerfile"
 	},
 	// 👇 Features to add to the Dev Container. More info: https://containers.dev/implementors/features.
-	// "features": {},
+	"runArgs": ["--device=/dev/net/tun"],
+	"features": {
+		"ghcr.io/tailscale/codespace/tailscale": {}
+} ,
+
 	// 👇 Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 	// 👇 Use 'postCreateCommand' to run commands after the container is created.
