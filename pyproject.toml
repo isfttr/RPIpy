@@ -1,0 +1,11 @@
+[project]
+name = "rpipy"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10.14"
+dependencies = [
+    "asyncio>=3.4.3",
+    "pandas>=2.2.3",
+    "requests>=2.32.3",
+]
